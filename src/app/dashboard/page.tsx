@@ -1,105 +1,103 @@
 "use client";
-import React from "react";
-import { Wallet, ArrowUpDown } from "lucide-react";
+import React, { useState } from "react";
+import { Wallet, ArrowUpDown, ChevronDown } from "lucide-react";
 import { MainLayout } from "@/components/layout/MainLayout";
 
-// Define types for our dashboard data
-interface MarketSummary {
-  symbol: string;
-  price: number;
-  change: number;
-}
-
-interface PortfolioSummary {
-  totalValue: number;
-  dailyChange: number;
-  positions: number;
-  profitLoss: number;
-}
+// ... (keep existing interfaces)
 
 export default function DashboardPage() {
-  // Mock data
-  const marketSummary: MarketSummary[] = [
+  const [activeTab, setActiveTab] = useState("orders");
+
+  const marketTickers = [
     { symbol: "BTC/USD", price: 35420.5, change: 2.34 },
     { symbol: "ETH/USD", price: 2180.75, change: -1.2 },
-    { symbol: "EUR/USD", price: 1.1234, change: 0.15 },
+    { symbol: "EUR/USD", price: 1.123, change: 0.15 },
+    { symbol: "AAPL", price: 189.55, change: 0.45 },
+    { symbol: "MSFT", price: 378.33, change: -0.23 },
   ];
-
-  const portfolioSummary: PortfolioSummary = {
-    totalValue: 100234.56,
-    dailyChange: 2.34,
-    positions: 8,
-    profitLoss: 1234.56,
-  };
 
   return (
     <MainLayout>
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-gray-800 p-4 rounded-lg">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-400 text-sm">Portfolio Value</p>
-              <p className="text-2xl font-bold">
-                ${portfolioSummary.totalValue.toLocaleString()}
-              </p>
-              <p className="text-green-500 text-sm">
-                +{portfolioSummary.dailyChange}%
-              </p>
+      {/* Market Tickers with enhanced hover and transition effects */}
+      <div className="grid grid-cols-5 gap-3 mb-6 overflow-x-auto pb-2">
+        {marketTickers.map((ticker) => (
+          <div
+            key={ticker.symbol}
+            className="bg-gray-800/50 backdrop-blur-sm p-4 rounded-xl transition-all duration-200 hover:bg-gray-800/80 hover:transform hover:-translate-y-1 hover:shadow-lg cursor-pointer"
+          >
+            <div className="text-sm text-gray-400 font-medium">
+              {ticker.symbol}
             </div>
-            <Wallet className="text-gray-400" />
+            <div className="text-xl font-bold tracking-tight">
+              ${ticker.price.toLocaleString()}
+            </div>
+            <div
+              className={`text-sm font-medium ${
+                ticker.change >= 0 ? "text-green-400" : "text-red-400"
+              }`}
+            >
+              {ticker.change >= 0 ? "+" : ""}
+              {ticker.change}%
+            </div>
           </div>
-        </div>
+        ))}
+      </div>
 
-        <div className="bg-gray-800 p-4 rounded-lg">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-400 text-sm">Open Positions</p>
-              <p className="text-2xl font-bold">{portfolioSummary.positions}</p>
-              <p className="text-gray-400 text-sm">Active Trades</p>
-            </div>
-            <ArrowUpDown className="text-gray-400" />
-          </div>
+      {/* Portfolio Overview with smooth transitions */}
+      <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl mb-6 transition-all duration-200 hover:bg-gray-800/80">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold">Portfolio Overview</h2>
+          <select className="bg-gray-700/50 border-none rounded-lg p-2 px-4 transition-all duration-200 hover:bg-gray-700/80 focus:ring-2 focus:ring-blue-500 outline-none">
+            <option>Account 1</option>
+            <option>Account 2</option>
+          </select>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="text-gray-400 text-left">
+              <tr>
+                <th className="py-3 px-4 font-medium">Symbol</th>
+                <th className="py-3 px-4 font-medium">Quantity</th>
+                <th className="py-3 px-4 font-medium">Entry Price</th>
+                <th className="py-3 px-4 font-medium">Current Price</th>
+                <th className="py-3 px-4 font-medium">P/L</th>
+                <th className="py-3 px-4 font-medium">% Change</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-t border-gray-700/50 transition-colors duration-150 hover:bg-gray-700/20">
+                <td className="py-3 px-4">AAPL</td>
+                <td className="py-3 px-4">100</td>
+                <td className="py-3 px-4">$180.50</td>
+                <td className="py-3 px-4">$189.55</td>
+                <td className="py-3 px-4 text-green-400">+$905.00</td>
+                <td className="py-3 px-4 text-green-400">+5.01%</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      {/* Market Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Market Summary */}
-        <div className="bg-gray-800 p-4 rounded-lg">
-          <h2 className="text-lg font-semibold mb-4">Market Summary</h2>
-          <div className="space-y-4">
-            {marketSummary.map((market) => (
-              <div
-                key={market.symbol}
-                className="flex justify-between items-center"
+      {/* Tabs Section with smooth transitions */}
+      <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden">
+        <div className="border-b border-gray-700/50">
+          <div className="flex gap-1 p-1">
+            {["Orders", "Positions", "Executions"].map((tab) => (
+              <button
+                key={tab}
+                className={`px-6 py-3 rounded-lg transition-all duration-200 ${
+                  activeTab === tab.toLowerCase()
+                    ? "bg-gray-700/80 text-white"
+                    : "text-gray-400 hover:text-white hover:bg-gray-700/40"
+                }`}
+                onClick={() => setActiveTab(tab.toLowerCase())}
               >
-                <span className="text-gray-300">{market.symbol}</span>
-                <div className="text-right">
-                  <p className="font-semibold">
-                    ${market.price.toLocaleString()}
-                  </p>
-                  <p
-                    className={
-                      market.change >= 0 ? "text-green-500" : "text-red-500"
-                    }
-                  >
-                    {market.change >= 0 ? "+" : ""}
-                    {market.change}%
-                  </p>
-                </div>
-              </div>
+                {tab}
+              </button>
             ))}
           </div>
         </div>
-
-        {/* Chart placeholder */}
-        <div className="bg-gray-800 p-4 rounded-lg">
-          <h2 className="text-lg font-semibold mb-4">Market Overview</h2>
-          <div className="h-[300px] flex items-center justify-center">
-            <p className="text-gray-400">Chart Coming Soon</p>
-          </div>
-        </div>
+        <div className="p-6 min-h-[300px]">{/* Tab content here */}</div>
       </div>
     </MainLayout>
   );
